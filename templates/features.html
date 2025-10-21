@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card p-4">
+  <h3>Included Features</h3>
+  <ul>
+    <li>Historical price fetch (custom period & interval)</li>
+    <li>Company fundamentals and quick info</li>
+    <li>Save / manage a simple portfolio</li>
+    <li>Interactive charts (Chart.js)</li>
+    <li>Simple analytics: SMA50, SMA200</li>
+    <li>Contact form (stores messages locally)</li>
+    <li>Multi-page layout (Home, Features, Portfolio, Analytics, About, Contact)</li>
+  </ul>
+  <h5>How it works (technical)</h5>
+  <p>The backend uses yfinance to retrieve Ticker objects and historical data, converts them to Pandas DataFrames and serves JSON to the frontend. Caching is file-based to reduce repeated downloads.</p>
+</div>
+{% endblock %}

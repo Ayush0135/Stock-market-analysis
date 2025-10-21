@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card p-4">
+  <h3>Your Portfolio</h3>
+  <p>Saved tickers are persisted locally in a JSON file. Click a ticker to load it.</p>
+  <div id="portfolioList"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function renderPortfolio(){
+  const res = await fetch('/api/portfolio'); const list = await res.json();
+  const el = document.getElementById('portfolioList'); el.innerHTML='';
+  for(const t of list){
+    const btn = document.createElement('button'); btn.className='btn btn-outline-primary m-1'; btn.innerText=t; btn.onclick=()=>{ document.getElementById('tickerInput').value=t; document.querySelector('#searchBtn').click(); window.location.href='/'; };
+    el.appendChild(btn);
+  }
+}
+renderPortfolio();
+</script>
+{% endblock %}
