@@ -1,0 +1,11 @@
+
+
+# Virtual environment
+.venv/
+
+
+
+# Secrets / configs
+cache.pkl
+portfolio.json
+contacts.json
