@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h2 class="fw-bold mb-1">💼 My Portfolio</h2>
+            <p class="text-muted mb-0">Track your favorite stocks in real-time.</p>
+        </div>
+        <div class="col-auto">
+            <a href="/" class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-plus-lg me-2"></i> Add Stock
+            </a>
+        </div>
+    </div>
+
+    <!-- Portfolio Card -->
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3">Symbol</th>
+                        <th class="py-3 text-end">Price</th>
+                        <th class="py-3 text-end">Change</th>
+                        <th class="py-3 text-end">Change %</th>
+                        <th class="pe-4 py-3 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="portfolioTableBody">
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <div class="spinner-border text-primary mb-2" role="status"></div>
+                            <p class="mb-0">Loading portfolio...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="emptyState" class="text-center py-5 d-none">
+            <div class="mb-3">
+                <i class="bi bi-folder2-open display-1 text-muted opacity-25"></i>
+            </div>
+            <h5 class="fw-bold text-muted">Your portfolio is empty</h5>
+            <p class="text-muted small mb-4">Start analyzing stocks and add them here to track performances.</p>
+            <a href="/" class="btn btn-outline-primary rounded-pill px-4">Explore Markets</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    async function loadPortfolio() {
+        const tbody = document.getElementById('portfolioTableBody');
+        const emptyState = document.getElementById('emptyState');
+
+        // 1. Get tickers from LocalStorage
+        let portfolio = JSON.parse(localStorage.getItem('portfolio') || '[]');
+
+        // Remove duplicates and empty
+        portfolio = [...new Set(portfolio)].filter(t => t);
+        localStorage.setItem('portfolio', JSON.stringify(portfolio)); // Clean up
+
+        if (portfolio.length === 0) {
+            tbody.parentElement.classList.add('d-none'); // Hide table
+            emptyState.classList.remove('d-none'); // Show empty state
+            return;
+        } else {
+            tbody.parentElement.classList.remove('d-none');
+            emptyState.classList.add('d-none');
+        }
+
+        try {
+            // 2. Fetch Data from Batch API
+            const res = await fetch(`/api/batch_price?tickers=${portfolio.join(',')}`);
+            const json = await res.json();
+            const data = json.data || [];
+
+            // 3. Render Table
+            if (data.length > 0) {
+                tbody.innerHTML = data.map(stock => {
+                    const isUp = stock.change >= 0;
+                    const colorClass = isUp ? 'text-success' : 'text-danger';
+                    const icon = isUp ? '▲' : '▼';
+                    const price = stock.price ? `₹${stock.price.toLocaleString('en-IN')}` : 'N/A';
+                    const change = stock.change ? `${icon} ${Math.abs(stock.change).toFixed(2)}` : '-';
+                    const pct = stock.change_percent ? `${Math.abs(stock.change_percent).toFixed(2)}%` : '-';
+
+                    return `
+                        <tr class="cursor-pointer" onclick="window.location.href='/analytics?ticker=${stock.symbol}'" style="cursor: pointer;">
+                            <td class="ps-4 fw-bold">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3" 
+                                         style="width: 40px; height: 40px; font-size: 0.8rem;">
+                                        ${stock.symbol.substring(0, 2)}
+                                    </div>
+                                    <div>
+                                        <div class="text-dark">${stock.symbol}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-end fw-bold">${price}</td>
+                            <td class="text-end ${colorClass}">${change}</td>
+                            <td class="text-end ${colorClass} fw-bold position-relative">
+                                <span class="badge ${isUp ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'} rounded-pill px-3">
+                                    ${pct}
+                                </span>
+                            </td>
+                            <td class="pe-4 text-end" onclick="event.stopPropagation()">
+                                <button class="btn btn-sm btn-light text-danger hover-scale" 
+                                        onclick="removeFromPortfolio('${stock.symbol}')" 
+                                        title="Remove">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-danger">Failed to load data.</td></tr>';
+            }
+        } catch (e) {
+            console.error(e);
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-danger">Error loading portfolio data.</td></tr>';
+        }
+    }
+
+    function removeFromPortfolio(ticker) {
+        if (confirm(`Remove ${ticker} from portfolio?`)) {
+            let p = JSON.parse(localStorage.getItem('portfolio') || '[]');
+            p = p.filter(t => t !== ticker);
+            localStorage.setItem('portfolio', JSON.stringify(p));
+            loadPortfolio(); // Reload
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadPortfolio);
+</script>
+
+<style>
+    .cursor-pointer:hover {
+        background-color: #f8f9fa;
+    }
+
+    .bg-success-subtle {
+        background-color: #d1e7dd;
+    }
+
+    .bg-danger-subtle {
+        background-color: #f8d7da;
+    }
+</style>
+{% endblock %}

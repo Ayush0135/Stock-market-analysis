@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow-lg rounded-4 p-4" style="max-width: 800px; margin:auto; background: #f8f9fa;">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">✨ Dashboard Features</h2>
+            <p class="text-muted">Everything you need for smart stock analysis in one place</p>
+        </div>
+
+        <ul class="list-group list-group-flush mb-4">
+            <li class="list-group-item d-flex align-items-center">
+                <span class="me-3">📊</span>
+                Historical price fetch <span class="badge bg-primary ms-auto">Custom period & interval</span>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <span class="me-3">🏢</span>
+                Company fundamentals and quick info
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <span class="me-3">💼</span>
+                Save / manage a simple portfolio
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <span class="me-3">📈</span>
+                Interactive charts <span class="badge bg-success ms-auto">Chart.js</span>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <span class="me-3">⚡</span>
+                Simple analytics: SMA50, SMA200
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <span class="me-3">✉️</span>
+                Contact form (stores messages locally)
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <span class="me-3">🌐</span>
+                Multi-page layout: Home, Features, Portfolio, Analytics, About, Contact
+            </li>
+        </ul>
+
+        <div class="accordion" id="howItWorksAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                        How it works (technical)
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#howItWorksAccordion">
+                    <div class="accordion-body">
+                        The backend uses <code>yfinance</code> to retrieve Ticker objects and historical data, converts them to Pandas DataFrames, and serves JSON to the frontend. Caching is file-based to reduce repeated downloads and improve performance. Interactive charts are rendered using Chart.js with dynamic updates based on user selection.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+.venv/
+
+cache.pkl
+portfolio.json
+contacts.json
+# Environment files
+.env
+.env.*
+__pycache__/

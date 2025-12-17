@@ -1,0 +1,378 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 🌍 GLOBAL & INDIAN INDICES -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="fw-bold mb-3">🌏 Market Overview</h3>
+        </div>
+        <!-- Will be populated by JS -->
+        <div id="market-indices" class="row g-3">
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="text-muted mt-2">Loading Global Markets...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- 📊 SECTOR PERFORMANCE & MOVERS -->
+        <div class="col-lg-8">
+            <!-- Market Breadth / Sentiment -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0 fw-bold">🌡️ Market Sentiment & Breadth</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center align-items-center">
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <div class="p-3 bg-light rounded-3">
+                                <h6 class="text-muted mb-1">Fear & Greed</h6>
+                                <h3 class="fw-bold mb-0 text-success">Greed</h3>
+                                <div class="progress mt-2" style="height: 6px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: 75%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <h6 class="text-muted">Advance / Decline</h6>
+                            <h4 class="fw-bold text-primary">1,240 / 850</h4>
+                            <p class="small text-success mb-0">↑ Positive Breadth</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-muted">India VIX</h6>
+                            <h4 class="fw-bold" id="india-vix">--</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Movers Tabs -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">🚀 Top Movers (Nifty 50)</h5>
+                    <ul class="nav nav-pills" id="moversTab" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active btn-sm py-1 px-3" id="gainers-tab" data-bs-toggle="tab"
+                                data-bs-target="#gainers" type="button">Gainers</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link btn-sm py-1 px-3" id="losers-tab" data-bs-toggle="tab"
+                                data-bs-target="#losers" type="button">Losers</button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body p-0">
+                    <div class="tab-content" id="moversTabContent">
+                        <div class="tab-pane fade show active" id="gainers" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th class="ps-4">Company</th>
+                                            <th>Price</th>
+                                            <th>Change</th>
+                                            <th class="text-end pe-4">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="gainers-list">
+                                        <tr>
+                                            <td colspan="4" class="text-center py-4">Loading...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="losers" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th class="ps-4">Company</th>
+                                            <th>Price</th>
+                                            <th>Change</th>
+                                            <th class="text-end pe-4">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="losers-list">
+                                        <tr>
+                                            <td colspan="4" class="text-center py-4">Loading...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sector Heatmap (Simplified List) -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0 fw-bold">🏭 Sector Performance</h5>
+                </div>
+                <div class="card-body" id="sector-list">
+                    <p class="text-center text-muted">Loading sector data...</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 🗞️ SIDEBAR: NEWS & EVENTS -->
+        <div class="col-lg-4">
+            <!-- Brief News -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-header bg-danger text-white py-3 rounded-top-4">
+                    <h5 class="mb-0 fw-bold">⚡ Market Buzz</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" id="market-news-list">
+                        <div class="text-center py-4">
+                            <div class="spinner-border spinner-border-sm"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 text-center py-3">
+                    <a href="/news" class="btn btn-outline-danger w-100 rounded-pill">View All News</a>
+                </div>
+            </div>
+
+            <!-- Economic Calendar (Static for now/Simulated) -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0 fw-bold">📅 Upcoming Events</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="d-flex mb-3">
+                            <div class="me-3 text-center bg-light rounded p-2" style="min-width: 50px;">
+                                <span class="d-block small text-muted">DEC</span>
+                                <span class="fw-bold fs-5">12</span>
+                            </div>
+                            <div>
+                                <h6 class="mb-1 fw-bold">CPI Inflation Data</h6>
+                                <p class="small text-muted mb-0">Expected: 5.4% | India</p>
+                            </div>
+                        </li>
+                        <li class="d-flex mb-3">
+                            <div class="me-3 text-center bg-light rounded p-2" style="min-width: 50px;">
+                                <span class="d-block small text-muted">DEC</span>
+                                <span class="fw-bold fs-5">15</span>
+                            </div>
+                            <div>
+                                <h6 class="mb-1 fw-bold">Fed Interest Rate Decision</h6>
+                                <p class="small text-muted mb-0">FOMC Meeting | USA</p>
+                            </div>
+                        </li>
+                        <li class="d-flex">
+                            <div class="me-3 text-center bg-light rounded p-2" style="min-width: 50px;">
+                                <span class="d-block small text-muted">DEC</span>
+                                <span class="fw-bold fs-5">18</span>
+                            </div>
+                            <div>
+                                <h6 class="mb-1 fw-bold">TCS Earnings Call</h6>
+                                <p class="small text-muted mb-0">Q3 Results | India IT</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Global Indices List (Compact) -->
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0 fw-bold">🌎 Global Watch</h5>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm table-hover mb-0">
+                        <tbody id="global-indices-compact">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        fetchMarketOverview();
+        fetchSectorPerformance();
+        fetchTopMovers(); // We'll assume backend does heavy lifting or we fetch list
+        fetchBriefNews();
+    });
+
+    async function fetchMarketOverview() {
+        try {
+            const res = await fetch('/api/market_overview');
+            const data = await res.json();
+
+            // 1. Render Main Indices Cards
+            const mainIndices = [
+                { k: '^NSEI', name: 'Nifty 50', bg: 'bg-primary' },
+                { k: '^BSESN', name: 'Sensex', bg: 'bg-info' },
+                { k: '^NSEBANK', name: 'Bank Nifty', bg: 'bg-success' },
+                { k: '^INDIAVIX', name: 'India VIX', bg: 'bg-warning' } // Check ticker validity
+            ];
+
+            const container = document.getElementById('market-indices');
+            container.innerHTML = '';
+
+            // Separate main indices from global
+            mainIndices.forEach(idx => {
+                const item = data.indices.find(i => i.symbol === idx.k);
+                if (item) {
+                    const isUp = item.change >= 0;
+                    const colorClass = isUp ? 'text-success' : 'text-danger';
+                    const arrow = isUp ? '▲' : '▼';
+
+                    // Special handling for VIX
+                    if (idx.k === '^INDIAVIX') {
+                        document.getElementById('india-vix').innerText = item.price.toFixed(2);
+                        document.getElementById('india-vix').className = `fw-bold ${item.change > 0 ? 'text-danger' : 'text-success'}`; // VIX up is usually bad
+                    }
+
+                    container.innerHTML += `
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden">
+                                <div class="card-body">
+                                    <h6 class="text-muted text-uppercase mb-2 small fw-bold">${idx.name}</h6>
+                                    <h3 class="fw-bold mb-0">
+                                        ${item.price.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                                    </h3>
+                                    <p class="mb-0 mt-2 ${colorClass} fw-bold">
+                                        ${arrow} ${item.change.toFixed(2)} (${item.percent.toFixed(2)}%)
+                                    </p>
+                                </div>
+                                <div class="position-absolute end-0 bottom-0 p-3 opacity-10">
+                                    <i class="bi bi-graph-up fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                     `;
+                }
+            });
+
+            // 2. Render Global Compact
+            const globalDiv = document.getElementById('global-indices-compact');
+            globalDiv.innerHTML = '';
+
+            const watchList = ['^GSPC', '^IXIC', '^DJI', '^FTSE', '^N225'];
+            const names = { '^GSPC': 'S&P 500', '^IXIC': 'Nasdaq', '^DJI': 'Dow Jones', '^FTSE': 'FTSE 100', '^N225': 'Nikkei 225' };
+
+            watchList.forEach(sym => {
+                const item = data.indices.find(i => i.symbol === sym);
+                if (item) {
+                    const isUp = item.change >= 0;
+                    const color = isUp ? 'text-success' : 'text-danger';
+                    globalDiv.innerHTML += `
+                        <tr>
+                            <td class="ps-3 fw-bold">${names[sym]}</td>
+                            <td class="text-end pe-3">
+                                <span class="d-block text-dark">${item.price.toLocaleString()}</span>
+                                <span class="small ${color}">${isUp ? '+' : ''}${item.percent.toFixed(2)}%</span>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function fetchSectorPerformance() {
+        // Since we don't have real NSE sector indices easily in yfinance without correct tickers,
+        // we'll simulate or use known tickers if available. 
+        // For now, let's call the API and let backend handle the logic.
+        try {
+            const res = await fetch('/api/sector_performance');
+            const data = await res.json();
+            const container = document.getElementById('sector-list');
+            container.innerHTML = '';
+
+            data.sectors.forEach(sec => {
+                const isUp = sec.percent >= 0;
+                const color = isUp ? 'bg-success' : 'bg-danger';
+
+                container.innerHTML += `
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="fw-bold text-dark">${sec.name}</span>
+                            <span class="small fw-bold ${isUp ? 'text-success' : 'text-danger'}">
+                                ${isUp ? '+' : ''}${sec.percent.toFixed(2)}%
+                            </span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar ${color}" role="progressbar" 
+                                style="width: ${Math.abs(sec.percent) * 10}%; min-width: 5%;">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+        } catch (e) { console.error('Sector load error', e); }
+    }
+
+    async function fetchTopMovers() {
+        try {
+            const res = await fetch('/api/top_movers');
+            const data = await res.json();
+
+            renderMovers('gainers-list', data.gainers, true);
+            renderMovers('losers-list', data.losers, false);
+
+        } catch (e) { console.error('Movers load error', e); }
+    }
+
+    function renderMovers(id, list, isGainer) {
+        const container = document.getElementById(id);
+        if (!list || list.length === 0) {
+            container.innerHTML = '<tr><td colspan="4" class="text-center">No data availabe</td></tr>';
+            return;
+        }
+
+        container.innerHTML = list.map(stock => `
+            <tr>
+                <td class="ps-4">
+                    <div class="fw-bold text-dark">${stock.symbol}</div>
+                   
+                </td>
+                <td>₹${stock.price.toFixed(2)}</td>
+                <td class="${isGainer ? 'text-success' : 'text-danger'} fw-bold">
+                    ${isGainer ? '+' : ''}${stock.percent.toFixed(2)}%
+                </td>
+                <td class="text-end pe-4">
+                    <a href="/analytics?ticker=${stock.symbol}" class="btn btn-sm btn-light border">Analyze</a>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    async function fetchBriefNews() {
+        try {
+            const res = await fetch('/api/stock_news');
+            const data = await res.json();
+            const container = document.getElementById('market-news-list');
+
+            if (!data.articles || data.articles.length === 0) return;
+
+            container.innerHTML = data.articles.slice(0, 5).map(a => `
+                <a href="${a.url}" target="_blank" class="list-group-item list-group-item-action py-3">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1 fw-bold text-dark" style="font-size:0.95rem;">${a.title.substring(0, 50)}...</h6>
+                    </div>
+                    <p class="mb-1 text-muted small line-clamp-2">${a.snippet || ''}</p>
+                    <small class="text-primary">${a.source}</small>
+                </a>
+            `).join('');
+        } catch (e) { }
+    }
+</script>
+{% endblock %}

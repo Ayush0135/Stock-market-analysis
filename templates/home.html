@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- 🌟 Hero Section -->
+<section class="position-relative overflow-hidden py-5 bg-gradient-primary text-white"
+    style="min-height: 85vh; display: flex; align-items: center;">
+    <!-- Abstract Background Shape -->
+    <div class="position-absolute top-0 end-0 translate-middle-y opacity-10">
+        <svg viewBox="0 0 200 200" width="800" height="800" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#3B82F6"
+                d="M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.1,-19.2,95.8,-4.9C93.5,9.3,82.2,22.9,71.3,34.8C60.4,46.7,49.9,56.9,37.6,65.6C25.3,74.3,11.2,81.5,-2.1,85.1C-15.4,88.7,-29.9,88.8,-42.6,83C-55.3,77.2,-66.2,65.5,-75.2,52.3C-84.2,39.1,-91.3,24.4,-90.6,9.8C-89.9,-4.8,-81.4,-19.3,-71.3,-31.6C-61.2,-43.9,-49.5,-54,-36.8,-62.4C-24.1,-70.8,-10.5,-77.5,1.8,-80.6C14.1,-83.7,28.2,-83.1,30.5,-83.6L44.7,-76.4Z"
+                transform="translate(100 100)" />
+        </svg>
+    </div>
+
+    <div class="container position-relative z-2">
+        <div class="row align-items-center justify-content-center text-center">
+            <div class="col-lg-10">
+                <span
+                    class="badge bg-primary-soft text-white border border-white border-opacity-25 mb-4 px-3 py-2 rounded-pill fw-light">
+                    ✨ New: AI-Powered Market Analysis 2.0
+                </span>
+                <h1 class="display-3 fw-bold mb-4 lh-tight">
+                    Master the Markets with <span class="text-accent">Intelligent Insights</span>
+                </h1>
+                <p class="lead mb-5 opacity-75 mx-auto" style="max-width: 700px;">
+                    Experience the future of investing. Real-time data, institutional-grade analytics, and AI-driven
+                    deep dives—all in one beautiful dashboard.
+                </p>
+
+                <!-- Search Card -->
+                <div class="card border-0 shadow-lg rounded-4 p-2 mx-auto"
+                    style="max-width: 600px; background: rgba(255,255,255,0.1); backdrop-filter: blur(20px);">
+                    <div class="input-group input-group-lg bg-white rounded-4 overflow-hidden p-1">
+                        <span class="input-group-text bg-white border-0 ps-3">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input id="tickerInput" type="text" class="form-control border-0 shadow-none fw-medium"
+                            placeholder="Search ticker (e.g. RELIANCE, AAPL, TCS)..." autofocus>
+                        <button id="analyzeBtn" class="btn btn-primary rounded-3 px-4 fw-bold m-1"
+                            style="background-color: var(--accent); border: none;">
+                            Analyze
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-white opacity-50 small">
+                    <span class="me-3"><i class="bi bi-check-circle-fill me-1"></i> Real-time NSE/BSE Data</span>
+                    <span class="me-3"><i class="bi bi-check-circle-fill me-1"></i> AI Sentiment Analysis</span>
+                    <span><i class="bi bi-check-circle-fill me-1"></i> Global Coverage</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 📊 Market Ticker Strip -->
+<div class="bg-white border-bottom py-3 overflow-hidden">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between text-muted fw-bold small text-uppercase gap-5"
+            style="white-space: nowrap; overflow-x: auto;">
+            <span><i class="bi bi-caret-up-fill text-success"></i> Nifty 50 <span
+                    class="text-dark">25,839.65</span></span>
+            <span><i class="bi bi-caret-up-fill text-success"></i> Sensex <span
+                    class="text-dark">84,666.28</span></span>
+            <span><i class="bi bi-caret-down-fill text-danger"></i> Bank Nifty <span
+                    class="text-dark">59,222.35</span></span>
+            <span><i class="bi bi-caret-up-fill text-success"></i> S&P 500 <span
+                    class="text-dark">6,848.93</span></span>
+            <span><i class="bi bi-caret-up-fill text-success"></i> Nasdaq <span
+                    class="text-dark">23,597.40</span></span>
+            <span><i class="bi bi-caret-up-fill text-success"></i> Gold <span class="text-dark">$2,654.10</span></span>
+        </div>
+    </div>
+</div>
+
+<!-- 🚀 Features Section -->
+<section class="py-6 bg-white" style="padding: 5rem 0;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h6 class="text-accent fw-bold text-uppercase ls-md">Why WeFinance?</h6>
+            <h2 class="fw-bold display-6">Tools for the Modern Investor</h2>
+        </div>
+
+        <div class="row g-4">
+            <!-- Feature 1 -->
+            <div class="col-md-4">
+                <div class="p-4 rounded-4 bg-light h-100 hover-lift text-center text-md-start">
+                    <div class="icon-square bg-white shadow-sm p-3 rounded-3 d-inline-block mb-3 text-accent fs-3">
+                        <i class="bi bi-cpu"></i>
+                    </div>
+                    <h4 class="fw-bold">AI-Powered Insights</h4>
+                    <p class="text-muted">Don't just see the price. Understand the *why*. Our Large Language Models
+                        analyze financials, news, and sentiment to give you a clear buy/sell breakdown.</p>
+                </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="col-md-4">
+                <div class="p-4 rounded-4 bg-light h-100 hover-lift text-center text-md-start">
+                    <div class="icon-square bg-white shadow-sm p-3 rounded-3 d-inline-block mb-3 text-success fs-3">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <h4 class="fw-bold">Deep Dive Analytics</h4>
+                    <p class="text-muted">Interactive charts, multi-year comparisons, and granular intraday data. We
+                        give you institutional-grade tools without the clutter.</p>
+                </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="col-md-4">
+                <div class="p-4 rounded-4 bg-light h-100 hover-lift text-center text-md-start">
+                    <div class="icon-square bg-white shadow-sm p-3 rounded-3 d-inline-block mb-3 text-primary fs-3">
+                        <i class="bi bi-phone"></i>
+                    </div>
+                    <h4 class="fw-bold">Global & Crypto Coverage</h4>
+                    <p class="text-muted">From Nifty 50 to Bitcoin, track your entire portfolio in one place. We support
+                        over 50 exchanges worldwide including NSE, BSE, NYSE, and Crypto.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 📣 CTA Section -->
+<section class="py-5 bg-light">
+    <div class="container rounded-5 bg-dark text-white p-5 position-relative overflow-hidden">
+        <div class="position-absolute end-0 top-0 p-5 opacity-10">
+            <i class="bi bi-wallet2 display-1"></i>
+        </div>
+        <div class="row align-items-center position-relative z-1">
+            <div class="col-lg-8">
+                <h3 class="fw-bold mb-2">Ready to start investing smarter?</h3>
+                <p class="opacity-75 mb-0">Join thousands of investors using WeFinance to stay ahead of the curve.</p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                <a href="/markets" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold bg-accent border-0">Explore
+                    Markets</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Include the smart search logic from previous step
+    document.getElementById('analyzeBtn').addEventListener('click', async () => {
+        const input = document.getElementById('tickerInput');
+        const btn = document.getElementById('analyzeBtn');
+        const originalText = btn.innerText;
+        let query = input.value.trim().toUpperCase();
+
+        if (!query) return alert("⚠️ Please enter a company name or ticker!");
+
+        // UI Feedback
+        btn.innerText = "Searching...";
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(`/api/search_ticker?query=${encodeURIComponent(query)}`);
+            const data = await res.json();
+
+            if (data.candidates && data.candidates.length > 0) {
+                const bestMatch = data.candidates[0];
+                console.log(`Mapped '${query}' to '${bestMatch.symbol}'`);
+                window.location.href = `/analytics?ticker=${bestMatch.symbol}`;
+            } else {
+                window.location.href = `/analytics?ticker=${query}`;
+            }
+        } catch (e) {
+            console.error("Search failed", e);
+            window.location.href = `/analytics?ticker=${query}`;
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    });
+
+    // Enter key support
+    document.getElementById('tickerInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            document.getElementById('analyzeBtn').click();
+        }
+    });
+</script>
+{% endblock %}

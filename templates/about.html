@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card shadow-sm border-0 rounded-4 p-4" style="background: #f8f9fa; max-width:800px; margin:auto;">
+  <!-- Header -->
+  <div class="mb-3 p-3 rounded-top-4" style="background: linear-gradient(90deg, #0d6efd, #6610f2); color:#fff;">
+    <h2 class="mb-0 fw-bold">About YFinanceDash</h2>
+  </div>
+
+  <!-- Content -->
+  <div class="p-3 bg-white rounded-bottom-4">
+    <p class="mb-3">Welcome to <strong>YFinanceDash</strong> — a demo application designed to showcase the power of the <strong>yfinance</strong> Python package for fetching market data, company information, and corporate actions.</p>
+
+    <p class="mb-3">This prototype is intended for <em>research, learning, and data exploration</em>. It provides a simple interface for viewing stock charts, indicators, and AI-powered insights without requiring complex setup.</p>
+
+    <p class="mb-0 text-muted"><strong>Important:</strong> yfinance uses public Yahoo Finance endpoints. For production-grade trading applications, it is recommended to use a commercial data provider, implement robust error handling, authentication, and enforce rate-limiting safeguards.</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.card p {
+    line-height: 1.6;
+}
+</style>
+{% endblock %}

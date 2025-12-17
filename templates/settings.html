@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-primary text-white p-4 rounded-top-4"
+                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h3 class="mb-0 fw-bold">⚙️ Application Settings</h3>
+                </div>
+
+                <div class="card-body p-5">
+                    <!-- Theme Settings -->
+                    <div class="mb-5">
+                        <h5 class="fw-bold mb-3 border-bottom pb-2">🎨 Appearence</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h6 class="mb-1">Dark Mode</h6>
+                                <p class="text-muted small mb-0">Switch between light and dark themes</p>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="darkModeSwitch">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notification Settings -->
+                    <div class="mb-5">
+                        <h5 class="fw-bold mb-3 border-bottom pb-2">🔔 Notifications</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h6 class="mb-1">Price Alerts</h6>
+                                <p class="text-muted small mb-0">Get notified when watchlisted stocks move significantly
+                                </p>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="priceAlertsSwitch" checked>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h6 class="mb-1">News Digest</h6>
+                                <p class="text-muted small mb-0">Daily summary of important market news</p>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="newsDigestSwitch">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Settings -->
+                    <div class="mb-5">
+                        <h5 class="fw-bold mb-3 border-bottom pb-2">📊 Data Preferences</h5>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Default Refresh Rate</label>
+                            <select class="form-select" id="refreshRateSelect">
+                                <option value="15000">15 Seconds (Real-time)</option>
+                                <option value="30000" selected>30 Seconds</option>
+                                <option value="60000">1 Minute</option>
+                                <option value="300000">5 Minutes</option>
+                            </select>
+                            <p class="text-muted small mt-1">How often accurate charts & prices update automatically</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Default Chart Type</label>
+                            <select class="form-select" id="chartTypeSelect">
+                                <option value="line" selected>Line Chart</option>
+                                <option value="candlestick">Candlestick (Interactive)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Alpaca Paper Trading Toggle -->
+                    <div class="mb-5">
+                        <h5 class="fw-bold mb-3 border-bottom pb-2">🤖 Alpaca Paper Trading</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h6 class="mb-1">Enable Alpaca Paper Trading</h6>
+                                <p class="text-muted small mb-0">Toggle to allow live paper orders via Alpaca API.</p>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="alpacaToggle" checked>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Actions -->
+                    <div>
+                        <h5 class="fw-bold mb-3 border-bottom pb-2 text-danger">⚠️ Danger Zone</h5>
+                        <button class="btn btn-outline-danger w-100" onclick="clearAppData()">
+                            Clear All Local Data
+                        </button>
+                        <p class="text-muted small mt-2 text-center">This will reset your preferences and watchlist.</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast for saved settings -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="settingsToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+        aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                Settings saved successfully!
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Load saved settings
+        const darkMode = localStorage.getItem('darkMode') === 'true';
+        const refreshRate = localStorage.getItem('refreshRate') || '30000';
+        const chartType = localStorage.getItem('chartType') || 'line';
+        const priceAlerts = localStorage.getItem('priceAlerts') !== 'false';
+
+        document.getElementById('darkModeSwitch').checked = darkMode;
+        document.getElementById('refreshRateSelect').value = refreshRate;
+        document.getElementById('chartTypeSelect').value = chartType;
+        document.getElementById('priceAlertsSwitch').checked = priceAlerts;
+
+        applyTheme(darkMode);
+
+        // Event Listeners for seamless saving
+        document.getElementById('darkModeSwitch').addEventListener('change', function (e) {
+            localStorage.setItem('darkMode', e.target.checked);
+            applyTheme(e.target.checked);
+            showsaveToast();
+        });
+
+        document.getElementById('refreshRateSelect').addEventListener('change', function (e) {
+            localStorage.setItem('refreshRate', e.target.value);
+            showsaveToast();
+        });
+
+        document.getElementById('chartTypeSelect').addEventListener('change', function (e) {
+            localStorage.setItem('chartType', e.target.value);
+            showsaveToast();
+        });
+
+        document.getElementById('priceAlertsSwitch').addEventListener('change', function (e) {
+            localStorage.setItem('priceAlerts', e.target.checked);
+            showsaveToast();
+        });
+    });
+
+    function applyTheme(isDark) {
+        if (isDark) {
+            document.body.classList.add('bg-dark', 'text-white');
+            document.querySelectorAll('.card').forEach(c => {
+                c.classList.remove('bg-white');
+                c.classList.add('bg-secondary', 'text-white');
+            });
+        } else {
+            document.body.classList.remove('bg-dark', 'text-white');
+            document.querySelectorAll('.card').forEach(c => {
+                c.classList.remove('bg-secondary', 'text-white');
+                c.classList.add('bg-white');
+            });
+        }
+    }
+
+    function showsaveToast() {
+        const toast = new bootstrap.Toast(document.getElementById('settingsToast'));
+        toast.show();
+    }
+
+    function clearAppData() {
+        if (confirm('Are you sure you want to revert all settings to default?')) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+</script>
+{% endblock %}

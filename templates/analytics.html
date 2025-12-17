@@ -1,0 +1,903 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4" style="max-width:1000px; margin:auto;">
+
+  <!-- 💹 LIVE PRICE -->
+  <div class="card text-center p-4 shadow-lg border-0 mb-4"
+    style="background: linear-gradient(135deg, #2d3748, #4a5568); color:white;">
+    <h4 id="ticker-symbol" class="fw-bold">Loading...</h4>
+    <h2 id="live-price" class="fw-bold">₹ --</h2>
+    <p id="price-change" class="mt-2"></p>
+
+    <div class="mt-3">
+      <a id="buyStockBtn" href="#" target="_blank"
+        class="btn btn-success fw-bold px-4 py-2 rounded-pill shadow-sm hover-scale">
+        🚀 Buy Now
+      </a>
+    </div>
+  </div>
+
+  <!-- 🏢 COMPANY OVERVIEW -->
+  <div class="card shadow-sm border-0 rounded-4 mb-4">
+    <div class="p-3 bg-primary text-white rounded-top-4">
+      <h4 class="mb-0 fw-bold">🏢 Company Overview</h4>
+    </div>
+    <div class="p-4 bg-white rounded-bottom-4">
+      <p><strong>Name:</strong> <span id="companyName">Loading...</span></p>
+      <p><strong>Symbol:</strong> <span id="companySymbol">-</span></p>
+      <p><strong>Sector:</strong> <span id="companySector">-</span> |
+        <strong>Industry:</strong> <span id="companyIndustry">-</span>
+      </p>
+      <p id="companyDescription" class="text-muted fst-italic">Company description will appear here.</p>
+      <p><strong>Market Cap:</strong> <span id="companyMarketCap">-</span> |
+        <strong>PE Ratio:</strong> <span id="companyPE">-</span>
+      </p>
+      <p><strong>Website:</strong> <a href="#" id="companyWebsite" target="_blank">-</a></p>
+    </div>
+  </div>
+
+  <!-- 📈 CHART -->
+  <div class="card shadow-sm border-0 rounded-4 mb-4">
+    <div class="p-3 rounded-top-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+      <div class="d-flex justify-content-between align-items-center">
+        <h4 class="mb-0 fw-bold text-white">📈 Live Intraday Chart</h4>
+        <span class="badge bg-success">
+          <span class="spinner-grow spinner-grow-sm me-1" role="status" aria-hidden="true"></span>
+          Live
+        </span>
+      </div>
+    </div>
+    <div class="p-4 bg-white rounded-bottom-4">
+      <canvas id="priceChart" height="300"></canvas>
+    </div>
+  </div>
+
+  <!-- 📊 STOCK ANALYSIS -->
+  <div class="card shadow-sm border-0 rounded-4 mb-4">
+    <div class="p-3 bg-info text-dark rounded-top-4">
+      <h4 class="mb-0 fw-bold">📊 Stock Analysis (5-Year Overview)</h4>
+    </div>
+    <div class="p-4 bg-white rounded-bottom-4" id="stockAnalysis">
+      <p><strong>Average Price:</strong> ₹ <span id="avgPrice">--</span></p>
+      <p><strong>Lowest Price:</strong> ₹ <span id="lowPrice">--</span></p>
+      <p><strong>Highest Price:</strong> ₹ <span id="highPrice">--</span></p>
+      <p><strong>First Price:</strong> ₹ <span id="ftp">--</span></p>
+      <p><strong>Last Price:</strong> ₹ <span id="ltp">--</span></p>
+    </div>
+  </div>
+
+  <!-- 🤖 AI -->
+  <div class="card shadow-sm border-0 rounded-4 mb-4">
+    <div class="p-3 rounded-top-4" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+      <h4 class="mb-0 fw-bold text-white">🤖 AI Stock Analysis</h4>
+    </div>
+    <div class="p-4 bg-white rounded-bottom-4">
+      <div id="aiAnalysis">
+        <div class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="text-muted mt-2">Analyzing stock data with AI...</p>
+        </div>
+      </div>
+
+      <!-- AI Analysis will be populated here with structured sections -->
+      <div id="aiRecommendation" style="display: none;">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-light">
+              <h6 class="text-muted mb-2">📊 Recommendation</h6>
+              <h3 class="mb-0" id="aiRecommendationBadge">-</h3>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-light">
+              <h6 class="text-muted mb-2">🎯 Market Sentiment</h6>
+              <h5 class="mb-0" id="aiSentiment">-</h5>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <h6 class="fw-bold">📈 Short-term Outlook</h6>
+          <p id="aiShortTerm" class="mb-2">-</p>
+        </div>
+
+        <div class="mb-3">
+          <h6 class="fw-bold">📅 Long-term Outlook</h6>
+          <p id="aiLongTerm" class="mb-2">-</p>
+        </div>
+
+        <div>
+          <h6 class="fw-bold">💡 Key Points</h6>
+          <div id="aiKeyPoints"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 📰 NEWS -->
+  <div class="card shadow-sm border-0 rounded-4 mb-4">
+    <div class="p-3 bg-danger text-white rounded-top-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <h4 class="mb-0 fw-bold">📰 Latest News</h4>
+        <span class="badge bg-light text-dark" id="newsTickerBadge">Loading...</span>
+      </div>
+    </div>
+    <div class="p-4 bg-white rounded-bottom-4" id="stockNews">
+      <div class="text-center py-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="text-muted mt-2">Fetching latest news...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 📊 ADVANCED ANALYTICS GRID -->
+  <div class="row g-4 mb-4">
+    <!-- Fundamentals -->
+    <div class="col-md-6">
+      <div class="card h-100 shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white border-0 py-3">
+          <h5 class="fw-bold mb-0">📊 Fundamental Snapshot</h5>
+        </div>
+        <div class="card-body">
+          <div class="row gy-3">
+            <div class="col-6">
+              <small class="text-muted d-block text-uppercase small fw-bold">Analyst Rating</small>
+              <span id="fundRec" class="fw-bold text-dark">-</span>
+            </div>
+            <div class="col-6">
+              <small class="text-muted d-block text-uppercase small fw-bold">Target Price</small>
+              <span id="fundTarget" class="fw-bold text-dark">-</span>
+            </div>
+            <div class="col-4">
+              <small class="text-muted d-block small">P/E Ratio</small>
+              <span id="fundPE" class="fw-bold fs-5">-</span>
+            </div>
+            <div class="col-4">
+              <small class="text-muted d-block small">P/B Ratio</small>
+              <span id="fundPB" class="fw-bold fs-5">-</span>
+            </div>
+            <div class="col-4">
+              <small class="text-muted d-block small">Div Yield</small>
+              <span id="fundDiv" class="fw-bold fs-5">-</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance -->
+    <div class="col-md-6">
+      <div class="card h-100 shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white border-0 py-3">
+          <h5 class="fw-bold mb-0">🚀 Price Performance</h5>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-striped mb-0 text-center align-middle">
+            <thead class="bg-light">
+              <tr>
+                <th class="small text-muted text-uppercase">Period</th>
+                <th class="small text-muted text-uppercase">1W</th>
+                <th class="small text-muted text-uppercase">1M</th>
+                <th class="small text-muted text-uppercase">3M</th>
+                <th class="small text-muted text-uppercase">6M</th>
+                <th class="small text-muted text-uppercase">1Y</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="perfRow">
+                <td class="fw-bold text-muted">Return</td>
+                <td id="perf1W">-</td>
+                <td id="perf1M">-</td>
+                <td id="perf3M">-</td>
+                <td id="perf6M">-</td>
+                <td id="perf1Y">-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 📈 TECHNICALS STRIP -->
+  <div class="card shadow-sm border-0 rounded-4 mb-4 bg-light">
+    <div class="card-body d-flex justify-content-around align-items-center flex-wrap gap-4 py-4">
+      <div class="text-center">
+        <span class="d-block text-muted small text-uppercase fw-bold mb-1">Trend Signal</span>
+        <span id="techTrend" class="fw-bold fs-4">-</span>
+        <small id="techSignal" class="d-block badge bg-secondary mt-1">-</small>
+      </div>
+      <div class="vr display-none d-md-block"></div>
+      <div class="text-center">
+        <span class="d-block text-muted small text-uppercase fw-bold mb-1">RSI (14)</span>
+        <span id="techRSI" class="fw-bold fs-4">-</span>
+      </div>
+      <div class="vr display-none d-md-block"></div>
+      <div class="text-center">
+        <span class="d-block text-muted small text-uppercase fw-bold mb-1">Moving Avg (50)</span>
+        <span id="techSMA50" class="fw-bold fs-5">-</span>
+      </div>
+      <div class="text-center">
+        <span class="d-block text-muted small text-uppercase fw-bold mb-1">Moving Avg (200)</span>
+        <span id="techSMA200" class="fw-bold fs-5">-</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 📢 CTA SECTION -->
+  <div class="card text-white border-0 rounded-4 p-5 text-center mb-5 position-relative overflow-hidden"
+    style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+    <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10"
+      style="background-image: radial-gradient(#3b82f6 2px, transparent 2px); background-size: 30px 30px;">
+    </div>
+    <div class="position-relative z-1">
+      <h3 class="fw-bold mb-2">Ready to act on this analysis?</h3>
+      <p class="mb-4 opacity-75">Add <span class="fw-bold" id="ctaTickerName">this stock</span> to your portfolio to
+        track its performance in real-time.</p>
+      <button id="addToPortfolioBtn" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-lg"
+        style="background: #3b82f6; border: none; transition: transform 0.2s;">
+        <i class="bi bi-folder-plus me-2"></i> Add to Portfolio
+      </button>
+    </div>
+  </div>
+
+  <!-- 🛒 PAPER TRADE MODAL -->
+  <div class="modal fade" id="paperTradeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg rounded-4">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title fw-bold"><i class="bi bi-cart-plus me-2"></i> Paper Trade: Buy Stock</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+
+          <!-- SECTION 1: INPUT FORM -->
+          <div id="tradeInputSection">
+            <div class="text-center mb-4">
+              <h2 class="fw-bold text-success" id="tradeSymbol">TCS.NS</h2>
+              <p class="text-muted">Current Price: <span id="tradePrice" class="fw-bold">₹ --</span></p>
+            </div>
+
+            <form id="paperTradeForm">
+              <div class="mb-3">
+                <label for="tradeQty" class="form-label fw-bold">Quantity</label>
+                <input type="number" class="form-control form-control-lg text-center fw-bold" id="tradeQty" value="1"
+                  min="1">
+              </div>
+
+              <div class="d-flex justify-content-between my-3 p-3 bg-light rounded-3">
+                <span class="text-muted">Estimated Cost:</span>
+                <span class="fw-bold" id="tradeCost">₹ --</span>
+              </div>
+
+              <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-success btn-lg fw-bold rounded-pill">
+                  Confirm Buy Order
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- SECTION 2: SUCCESS MESSAGE (Hidden by default) -->
+          <div id="tradeSuccessSection" class="text-center" style="display: none;">
+            <div class="mb-4">
+              <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+            </div>
+            <h3 class="fw-bold text-success mb-2">Order Placed!</h3>
+            <p class="text-muted mb-4">You successfully bought <span id="successQty" class="fw-bold text-dark"></span>
+              shares of <span id="successTicker" class="fw-bold text-dark"></span>.</p>
+
+            <div class="d-grid gap-3">
+              <a href="https://app.alpaca.markets/paper/dashboard/overview" target="_blank"
+                class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm">
+                <i class="bi bi-box-arrow-up-right me-2"></i> Go to Alpaca Dashboard
+              </a>
+              <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">
+                Stay Here
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+<style>
+  .hover-primary:hover {
+    color: #0056b3 !important;
+    text-decoration: underline !important;
+  }
+
+  .hover-scale {
+    transition: transform 0.2s;
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.05);
+  }
+</style>
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const ticker = urlParams.get('ticker')?.toUpperCase() || 'TCS.NS';
+  document.getElementById('ticker-symbol').innerText = ticker;
+
+  // Handle Buy Button - Show Modal
+  const buyBtn = document.getElementById('buyStockBtn');
+  buyBtn.removeAttribute('href'); // disable link
+  buyBtn.style.cursor = 'pointer';
+
+  // Create Modal Instance
+  let tradeModal; // initialized later
+
+  buyBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (!tradeModal) tradeModal = new bootstrap.Modal(document.getElementById('paperTradeModal'));
+
+    // Update Modal Info
+    document.getElementById('tradeSymbol').innerText = ticker;
+    const currentPriceText = document.getElementById('live-price').innerText;
+    document.getElementById('tradePrice').innerText = currentPriceText;
+
+    // Parse price for math (remove symbols/commas)
+    const priceVal = parseFloat(currentPriceText.replace(/[^\d.]/g, '')) || 0;
+    const qty = parseInt(document.getElementById('tradeQty').value) || 1;
+    document.getElementById('tradeCost').innerText = '₹ ' + (priceVal * qty).toLocaleString('en-IN');
+
+    // Store price for dynamic updates
+    document.getElementById('paperTradeModal').dataset.price = priceVal;
+
+    tradeModal.show();
+  });
+
+  // Dynamic Cost Calculation
+  document.getElementById('tradeQty').addEventListener('input', function () {
+    const price = parseFloat(document.getElementById('paperTradeModal').dataset.price) || 0;
+    const qty = parseInt(this.value) || 0;
+    document.getElementById('tradeCost').innerText = '₹ ' + (price * qty).toLocaleString('en-IN');
+  });
+
+  // Submit Order
+  document.getElementById('paperTradeForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const btn = this.querySelector('button[type="submit"]');
+    const originalText = btn.innerText;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Processing...';
+
+    const qty = document.getElementById('tradeQty').value;
+
+    try {
+      const res = await fetch('/api/alpaca_order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          symbol: ticker,
+          qty: qty,
+          side: 'buy',
+          type: 'market'
+        })
+      });
+      const data = await res.json();
+
+      if (data.error) throw new Error(data.error);
+
+      // Success - Switch to Success View
+      document.getElementById('successQty').innerText = qty;
+      document.getElementById('successTicker').innerText = ticker;
+
+      document.getElementById('tradeInputSection').style.display = 'none';
+      document.getElementById('tradeSuccessSection').style.display = 'block';
+
+    } catch (err) {
+      alert('❌ Order Failed: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerText = originalText;
+    }
+  });
+
+  // Reset Modal on Close
+  document.getElementById('paperTradeModal').addEventListener('hidden.bs.modal', function () {
+    document.getElementById('tradeInputSection').style.display = 'block';
+    document.getElementById('tradeSuccessSection').style.display = 'none';
+    document.getElementById('tradeQty').value = 1;
+    // Reset cost
+    const price = parseFloat(document.getElementById('paperTradeModal').dataset.price) || 0;
+    document.getElementById('tradeCost').innerText = '₹ ' + price.toLocaleString('en-IN');
+  });
+
+  let chart;
+
+  // ---------- LIVE PRICE (INR ONLY) ----------
+  async function fetchLivePrice() {
+    try {
+      const res = await fetch(`/api/live_price?ticker=${ticker}`);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      const price = data.price;
+      const change = data.change_percent;
+
+      document.getElementById('live-price').innerText = `₹ ${price.toLocaleString('en-IN')}`;
+      document.getElementById('price-change').innerHTML =
+        change >= 0
+          ? `<span class="text-success">▲ ${change}%</span>`
+          : `<span class="text-danger">▼ ${change}%</span>`;
+      return price;
+    } catch (err) {
+      console.error('Live price error:', err);
+      document.getElementById('live-price').innerText = "N/A";
+    }
+  }
+
+  // ---------- COMPANY INFO ----------
+  async function fetchCompanyInfo() {
+    try {
+      const res = await fetch(`/api/info?ticker=${ticker}`);
+      const data = await res.json();
+      document.getElementById('companyName').innerText = data.name;
+      document.getElementById('companySymbol').innerText = data.symbol;
+      document.getElementById('companySector').innerText = data.sector;
+      document.getElementById('companyIndustry').innerText = data.industry;
+      document.getElementById('companyDescription').innerText = data.summary;
+      document.getElementById('companyMarketCap').innerText = data.market_cap ? (data.market_cap / 1e9).toFixed(2) + " B" : "-";
+      document.getElementById('companyPE').innerText = data.pe_ratio || "-";
+      const site = document.getElementById('companyWebsite');
+      site.href = data.website || "#";
+      site.textContent = data.website || "-";
+
+      // Update news ticker badge with company name
+      document.getElementById('newsTickerBadge').innerText = `${ticker} News`;
+    } catch (err) {
+      console.error('Company info error:', err);
+      document.getElementById('newsTickerBadge').innerText = ticker;
+    }
+  }
+
+  // ---------- CHART ----------
+
+  async function fetchIntradayChart() {
+    try {
+      const res = await fetch(`/api/intraday_data?ticker=${ticker}`);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      const ctx = document.getElementById('priceChart').getContext('2d');
+
+      // Create gradient for area fill
+      const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+      gradient.addColorStop(0, 'rgba(0, 123, 255, 0.4)');
+      gradient.addColorStop(0.5, 'rgba(0, 123, 255, 0.1)');
+      gradient.addColorStop(1, 'rgba(0, 123, 255, 0.0)');
+
+      // Destroy existing chart if it exists
+      if (chart) {
+        chart.destroy();
+      }
+
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.timestamps,
+          datasets: [
+            {
+              label: 'Price (₹)',
+              data: data.closes,
+              borderColor: '#007bff',
+              backgroundColor: gradient,
+              borderWidth: 2.5,
+              pointRadius: 0,
+              pointHoverRadius: 6,
+              pointHoverBackgroundColor: '#007bff',
+              pointHoverBorderColor: '#fff',
+              pointHoverBorderWidth: 2,
+              fill: true,
+              tension: 0.4, // Smooth curves
+            },
+            {
+              label: 'SMA 20',
+              data: data.sma20,
+              borderColor: '#28a745',
+              borderWidth: 1.5,
+              pointRadius: 0,
+              borderDash: [5, 5],
+              fill: false,
+              tension: 0.3,
+            },
+            {
+              label: 'SMA 50',
+              data: data.sma50,
+              borderColor: '#ffc107',
+              borderWidth: 1.5,
+              pointRadius: 0,
+              borderDash: [8, 4],
+              fill: false,
+              tension: 0.3,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+            duration: 1000,
+            easing: 'easeInOutQuart',
+          },
+          interaction: {
+            intersect: false,
+            mode: 'index',
+          },
+          scales: {
+            x: {
+              display: true,
+              grid: {
+                display: false,
+              },
+              ticks: {
+                maxRotation: 0,
+                autoSkip: true,
+                maxTicksLimit: 12,
+                font: {
+                  size: 10,
+                }
+              },
+            },
+            y: {
+              beginAtZero: false,
+              position: 'right',
+              title: {
+                display: true,
+                text: 'Price (₹)',
+                font: {
+                  weight: 'bold',
+                  size: 12,
+                }
+              },
+              grid: {
+                color: 'rgba(0, 0, 0, 0.05)',
+              },
+              ticks: {
+                callback: function (value) {
+                  return '₹' + value.toLocaleString('en-IN');
+                }
+              }
+            },
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                padding: 15,
+                font: {
+                  size: 11,
+                }
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              padding: 12,
+              titleFont: {
+                size: 13,
+                weight: 'bold',
+              },
+              bodyFont: {
+                size: 12,
+              },
+              displayColors: true,
+              callbacks: {
+                label: function (context) {
+                  let label = context.dataset.label || '';
+                  if (label) {
+                    label += ': ';
+                  }
+                  if (context.parsed.y !== null) {
+                    label += '₹' + context.parsed.y.toLocaleString('en-IN', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    });
+                  }
+                  return label;
+                }
+              }
+            },
+          },
+        },
+      });
+    } catch (err) {
+      console.error('Intraday chart error:', err);
+      document.getElementById('priceChart').parentElement.innerHTML =
+        '<p class="text-center text-muted py-4">Unable to load chart data. Market may be closed.</p>';
+    }
+  }
+
+
+
+  // ---------- STOCK ANALYSIS ----------
+  async function fetchStockAnalysis() {
+    try {
+      const res = await fetch(`/api/stock_analysis?ticker=${ticker}`);
+      const data = await res.json();
+
+      // Stock Price Summary (Existing)
+      document.getElementById('avgPrice').innerText = data.avg_price?.toLocaleString('en-IN') || "--";
+      document.getElementById('lowPrice').innerText = data.min_price?.toLocaleString('en-IN') || "--";
+      document.getElementById('highPrice').innerText = data.max_price?.toLocaleString('en-IN') || "--";
+      document.getElementById('ftp').innerText = data.first_price?.toLocaleString('en-IN') || "--";
+      document.getElementById('ltp').innerText = data.last_price?.toLocaleString('en-IN') || "--";
+
+      // Update CTA Ticker Name
+      const ctaName = document.getElementById('ctaTickerName');
+      if (ctaName) ctaName.innerText = ticker;
+
+      // Populate Performance Table
+      if (data.performance) {
+        const perf = data.performance;
+        ['1W', '1M', '3M', '6M', '1Y'].forEach(p => {
+          const val = perf[p];
+          const el = document.getElementById(`perf${p}`);
+          if (el) {
+            el.innerText = (val !== null && val !== undefined) ? val + '%' : '-';
+            el.className = val >= 0 ? 'text-success fw-bold' : 'text-danger fw-bold';
+          }
+        });
+      }
+
+      // Populate Technicals
+      if (data.technicals) {
+        const t = data.technicals;
+        document.getElementById('techRSI').innerText = t.rsi || '-';
+        document.getElementById('techSMA50').innerText = t.sma_50?.toLocaleString('en-IN') || '-';
+        document.getElementById('techSMA200').innerText = t.sma_200?.toLocaleString('en-IN') || '-';
+
+        const trendEl = document.getElementById('techTrend');
+        trendEl.innerText = t.trend || '-';
+        trendEl.className = t.trend === 'Bullish' ? 'fw-bold fs-4 text-success' : (t.trend === 'Bearish' ? 'fw-bold fs-4 text-danger' : 'fw-bold fs-4');
+
+        const sigEl = document.getElementById('techSignal');
+        sigEl.innerText = t.signal || '-';
+        sigEl.className = t.signal === 'Buy' ? 'd-block badge bg-success mt-1' : (t.signal === 'Sell' ? 'd-block badge bg-danger mt-1' : 'd-block badge bg-secondary mt-1');
+      }
+
+      // Populate Fundamentals
+      if (data.fundamentals) {
+        const f = data.fundamentals;
+        document.getElementById('fundRec').innerText = f.recommendation || '-';
+
+        if (f.target_mean) {
+          document.getElementById('fundTarget').innerText = '₹' + f.target_mean.toLocaleString('en-IN');
+        }
+
+        document.getElementById('fundPE').innerText = f.pe_ratio?.toFixed(2) || '-';
+        document.getElementById('fundPB').innerText = f.pb_ratio?.toFixed(2) || '-';
+        document.getElementById('fundDiv').innerText = f.dividend_yield ? (f.dividend_yield * 100).toFixed(2) + '%' : '-';
+      }
+
+    } catch (e) {
+      console.error("Analysis Fetch Error", e);
+    }
+  }
+
+  // ---------- AI RECOMMENDATION ----------
+  async function fetchAIAnalysis(price) {
+    try {
+      const res = await fetch('/api/ai_analysis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ticker, price })
+      });
+      const data = await res.json();
+      const aiText = data.ai_analysis || "";
+
+      if (!aiText || aiText.includes("AI key missing")) {
+        document.getElementById('aiAnalysis').innerHTML =
+          '<p class="text-muted">AI analysis not available. Configure GROQ_API_KEY in .env file.</p>';
+        return;
+      }
+
+      // Hide loading and show structured content
+      document.getElementById('aiAnalysis').style.display = 'none';
+      document.getElementById('aiRecommendation').style.display = 'block';
+
+      // Parse the AI response
+      const lines = aiText.split('\n').filter(line => line.trim());
+
+      // Extract recommendation (BUY/HOLD/SELL)
+      let recommendation = 'HOLD';
+      let confidence = '';
+      const recLine = lines.find(l =>
+        l.toUpperCase().includes('BUY') ||
+        l.toUpperCase().includes('HOLD') ||
+        l.toUpperCase().includes('SELL')
+      );
+
+      if (recLine) {
+        if (recLine.toUpperCase().includes('BUY')) recommendation = 'BUY';
+        else if (recLine.toUpperCase().includes('SELL')) recommendation = 'SELL';
+
+        // Extract confidence percentage
+        const confMatch = recLine.match(/(\d+)%/);
+        if (confMatch) confidence = confMatch[1] + '%';
+      }
+
+      // Set recommendation with color coding
+      const recBadge = document.getElementById('aiRecommendationBadge');
+      recBadge.textContent = recommendation + (confidence ? ` (${confidence})` : '');
+
+      if (recommendation === 'BUY') {
+        recBadge.className = 'mb-0 text-success fw-bold';
+      } else if (recommendation === 'SELL') {
+        recBadge.className = 'mb-0 text-danger fw-bold';
+      } else {
+        recBadge.className = 'mb-0 text-warning fw-bold';
+      }
+
+      // Extract sentiment
+      let sentiment = 'Neutral';
+      const sentLine = lines.find(l =>
+        l.toLowerCase().includes('sentiment') ||
+        l.toLowerCase().includes('bullish') ||
+        l.toLowerCase().includes('bearish')
+      );
+
+      if (sentLine) {
+        if (sentLine.toLowerCase().includes('bullish')) sentiment = '🟢 Bullish';
+        else if (sentLine.toLowerCase().includes('bearish')) sentiment = '🔴 Bearish';
+        else sentiment = '🟡 Neutral';
+      }
+      document.getElementById('aiSentiment').textContent = sentiment;
+
+      // Extract short-term and long-term outlook
+      let shortTerm = '';
+      let longTerm = '';
+
+      lines.forEach(line => {
+        if (line.toLowerCase().includes('short') && line.toLowerCase().includes('term')) {
+          shortTerm = line.replace(/.*short[- ]term.*?[:]/i, '').trim();
+        } else if (line.toLowerCase().includes('long') && line.toLowerCase().includes('term')) {
+          longTerm = line.replace(/.*long[- ]term.*?[:]/i, '').trim();
+        }
+      });
+
+      document.getElementById('aiShortTerm').textContent = shortTerm || 'Analysis pending market conditions.';
+      document.getElementById('aiLongTerm').textContent = longTerm || 'Long-term prospects under evaluation.';
+
+      // Extract key points (remaining lines)
+      const keyPoints = lines.filter(l =>
+        !l.toLowerCase().includes('recommendation') &&
+        !l.toLowerCase().includes('sentiment') &&
+        !l.toLowerCase().includes('short') &&
+        !l.toLowerCase().includes('long') &&
+        l.length > 20
+      );
+
+      if (keyPoints.length > 0) {
+        document.getElementById('aiKeyPoints').innerHTML = keyPoints
+          .map(point => `<li class="mb-2">${point}</li>`)
+          .join('');
+      } else {
+        document.getElementById('aiKeyPoints').innerHTML = '<p class="text-muted">No additional insights available.</p>';
+      }
+
+    } catch (err) {
+      console.error('AI analysis error:', err);
+      document.getElementById('aiAnalysis').innerHTML =
+        '<p class="text-danger">Unable to load AI analysis at this time.</p>';
+    }
+  }
+
+  // ---------- NEWS ----------
+  async function fetchStockNews() {
+    try {
+      const res = await fetch(`/api/stock_news?ticker=${ticker}`);
+      const data = await res.json();
+
+      if (data.error) {
+        document.getElementById('stockNews').innerHTML =
+          `<p class="text-danger">Error loading news: ${data.error}</p>`;
+        return;
+      }
+
+      if (!data.articles || data.articles.length === 0) {
+        document.getElementById('stockNews').innerHTML =
+          '<p class="text-muted">No recent news found for this company. News may be available when markets are open.</p>';
+        return;
+      }
+
+      const html = data.articles.map(a => {
+        // Handle date formatting
+        let dateStr = '';
+        if (a.published_at) {
+          try {
+            const date = new Date(a.published_at);
+            if (!isNaN(date.getTime())) {
+              dateStr = date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              });
+            }
+          } catch (e) {
+            dateStr = '';
+          }
+        }
+
+        return `
+        <div class="border-bottom pb-3 mb-3">
+          <a href="${a.url || '#'}" target="_blank" class="text-decoration-none">
+            <h6 class="fw-bold text-dark mb-2 hover-primary">${a.title || 'Untitled'}</h6>
+          </a>
+          ${a.snippet ? `<p class="text-muted small mb-2">${a.snippet}</p>` : ''}
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="badge bg-secondary">${a.source || 'Unknown'}</span>
+            ${dateStr ? `<small class="text-muted">${dateStr}</small>` : ''}
+          </div>
+        </div>
+      `;
+      }).join('');
+
+      document.getElementById('stockNews').innerHTML = html;
+    } catch (err) {
+      console.error('News error:', err);
+      document.getElementById('stockNews').innerHTML =
+        '<p class="text-danger">Unable to load news at this time.</p>';
+    }
+  }
+
+
+  // ---------- PORTFOLIO ACTION ----------
+  document.getElementById('addToPortfolioBtn')?.addEventListener('click', () => {
+    let portfolio = JSON.parse(localStorage.getItem('portfolio') || '[]');
+    if (!portfolio.includes(ticker)) {
+      portfolio.push(ticker);
+      localStorage.setItem('portfolio', JSON.stringify(portfolio));
+      alert(`${ticker} added to your portfolio!`);
+    } else {
+      alert(`${ticker} is already in your portfolio.`);
+    }
+    window.location.href = '/portfolio';
+  });
+
+  // ---------- INIT ----------
+  async function init() {
+    // Apply saved theme preference
+    const darkMode = localStorage.getItem('darkMode') === 'true';
+    if (darkMode) {
+      document.body.classList.add('bg-dark', 'text-white');
+    }
+
+    const price = await fetchLivePrice();
+    await fetchCompanyInfo();
+    await fetchIntradayChart();
+    await fetchStockAnalysis();
+    await fetchAIAnalysis(price);
+    await fetchStockNews();
+
+    // Get refresh rate from settings (default 30000ms / 30s)
+    const refreshRate = parseInt(localStorage.getItem('refreshRate') || '30000');
+    console.log('Using refresh rate:', refreshRate);
+
+    // Auto-refresh live price (half of chart refresh rate, min 5s)
+    const priceRefresh = Math.max(5000, refreshRate / 2);
+    setInterval(fetchLivePrice, priceRefresh);
+
+    // Auto-refresh chart based on settings
+    setInterval(fetchIntradayChart, refreshRate);
+  }
+  window.addEventListener('DOMContentLoaded', init);
+</script>
+{% endblock %}

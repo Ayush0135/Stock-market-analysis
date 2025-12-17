@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-4" style="max-width:1000px; margin:auto;">
+  <h3 class="fw-bold mb-4 text-center">Crypto Analysis (AI-Powered)</h3>
+
+  <div class="card shadow-sm p-4 border-0">
+    <form id="cryptoForm" onsubmit="event.preventDefault(); fetchCrypto();">
+      <div class="input-group mb-3">
+        <input type="text" id="crypto-symbol" class="form-control" placeholder="Enter Crypto (e.g., BTC, ETH, SOL)" required>
+        <button class="btn btn-dark" type="submit">Analyze</button>
+      </div>
+    </form>
+
+    <div id="crypto-result" style="display:none;">
+      <div id="ai-card" class="card mt-4 p-3 border-0 shadow-sm" style="background:#fafafa; display:none;">
+        <h5 class="fw-semibold mb-2">🤖 AI Crypto Insight</h5>
+        <div id="ai-analysis" class="text-secondary" style="white-space:pre-line;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function fetchCrypto() {
+  const symbol = document.getElementById("crypto-symbol").value.trim();
+  if (!symbol) return;
+
+  const res = await fetch(`/api/crypto?symbol=${symbol}`);
+  const data = await res.json();
+  const aiCard = document.getElementById("ai-card");
+  const aiText = document.getElementById("ai-analysis");
+  const resultBox = document.getElementById("crypto-result");
+
+  if (data.error) {
+    aiText.textContent = data.error;
+    aiCard.style.display = "block";
+  } else {
+    aiText.textContent = data.ai_analysis;
+    aiCard.style.display = "block";
+  }
+
+  resultBox.style.display = "block";
+}
+</script>
+
+{% endblock %}

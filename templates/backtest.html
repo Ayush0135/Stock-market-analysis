@@ -1,0 +1,391 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-lg-8 mx-auto text-center">
+            <h2 class="fw-bold mb-3">Strategy Backtester</h2>
+            <p class="text-muted">Simulate trading strategies on historical market data using Alpaca's robust paper
+                trading engine.</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Configuration Panel -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="fw-bold mb-0">🛠️ Configuration</h5>
+                </div>
+                <div class="card-body">
+                    <form id="backtestForm">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Stock Symbol</label>
+                            <input type="text" class="form-control" id="symbol" placeholder="e.g. AAPL" required
+                                value="AAPL">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Date Range</label>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text bg-light border-end-0">Start</span>
+                                <input type="date" class="form-control border-start-0" id="startDate" required>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">End</span>
+                                <input type="date" class="form-control border-start-0" id="endDate" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Strategy</label>
+                            <select class="form-select" id="strategy">
+                                <option value="sma_crossover">SMA Crossover (Golden Cross)</option>
+                                <option value="rsi">RSI Mean Reversion</option>
+                            </select>
+                        </div>
+
+                        <div id="strategyParams" class="mb-3 p-3 bg-light rounded-3">
+                            <!-- SMA Params -->
+                            <div id="smaParams">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="form-label extra-small fw-bold">Short Period</label>
+                                        <input type="number" class="form-control form-control-sm" id="shortPeriod"
+                                            value="10">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label extra-small fw-bold">Long Period</label>
+                                        <input type="number" class="form-control form-control-sm" id="longPeriod"
+                                            value="30">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- RSI Params (Hidden by default) -->
+                            <div id="rsiParams" style="display:none;">
+                                <div class="row g-2">
+                                    <div class="col-4">
+                                        <label class="form-label extra-small fw-bold">Period</label>
+                                        <input type="number" class="form-control form-control-sm" id="rsiPeriod"
+                                            value="14">
+                                    </div>
+                                    <div class="col-4">
+                                        <label class="form-label extra-small fw-bold">Oversold</label>
+                                        <input type="number" class="form-control form-control-sm" id="rsiOversold"
+                                            value="30">
+                                    </div>
+                                    <div class="col-4">
+                                        <label class="form-label extra-small fw-bold">Overbought</label>
+                                        <input type="number" class="form-control form-control-sm" id="rsiOverbought"
+                                            value="70">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Initial Capital
+                                ($)</label>
+                            <input type="number" class="form-control" id="capital" value="10000">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 fw-bold py-2 rounded-pill shadow-sm mb-3">
+                            <i class="bi bi-play-fill me-1"></i> Run Simulation
+                        </button>
+
+                        <button type="button" id="runLiveBtn"
+                            class="btn btn-warning w-100 fw-bold py-2 rounded-pill shadow-sm text-dark">
+                            <i class="bi bi-lightning-charge-fill me-1"></i> Execute Live (Paper)
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Panel -->
+        <div class="col-lg-8">
+            <div id="initialState" class="text-center py-5">
+                <div class="mb-3">
+                    <i class="bi bi-sliders text-muted opacity-25" style="font-size: 4rem;"></i>
+                </div>
+                <h4 class="text-muted fw-bold">Ready to Simulate</h4>
+                <p class="text-muted">Configure your strategy on the left and hit Run to see results.</p>
+            </div>
+
+            <div id="loadingState" class="text-center py-5" style="display: none;">
+                <div class="spinner-border text-primary mb-3" role="status"></div>
+                <p class="text-muted">Crunching historical data...</p>
+            </div>
+
+            <div id="resultsContainer" style="display: none;">
+                <!-- Key Metrics Cards -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3 col-6">
+                        <div class="card bg-success text-white border-0 rounded-3 shadow-sm h-100">
+                            <div class="card-body p-3 text-center">
+                                <small class="text-white-50 text-uppercase fw-bold" style="font-size: 0.7rem;">Total
+                                    Return</small>
+                                <h3 class="mb-0 fw-bold" id="resReturn">0%</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="card bg-white border-0 rounded-3 shadow-sm h-100">
+                            <div class="card-body p-3 text-center">
+                                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Final
+                                    Value</small>
+                                <h4 class="mb-0 fw-bold text-primary" id="resValue">$0</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="card bg-white border-0 rounded-3 shadow-sm h-100">
+                            <div class="card-body p-3 text-center">
+                                <small class="text-muted text-uppercase fw-bold"
+                                    style="font-size: 0.7rem;">Trades</small>
+                                <h4 class="mb-0 fw-bold" id="resTrades">0</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="card bg-white border-0 rounded-3 shadow-sm h-100">
+                            <div class="card-body p-3 text-center">
+                                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Win
+                                    Rate</small>
+                                <h4 class="mb-0 fw-bold" id="resWinRate">0%</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Chart -->
+                <div class="card shadow-sm border-0 rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">Portfolio Growth</h6>
+                        <div style="height: 300px;">
+                            <canvas id="backtestChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trades Table -->
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h6 class="fw-bold mb-0">Trade History</h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 text-center">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="small text-muted text-uppercase">Date</th>
+                                    <th class="small text-muted text-uppercase">Action</th>
+                                    <th class="small text-muted text-uppercase">Price</th>
+                                    <th class="small text-muted text-uppercase">Qty</th>
+                                    <th class="small text-muted text-uppercase">P/L</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tradesTableBody">
+                                <!-- Populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Set default dates (last 1 year)
+    const today = new Date();
+    const lastYear = new Date();
+    lastYear.setFullYear(today.getFullYear() - 1);
+
+    document.getElementById('endDate').valueAsDate = today;
+    document.getElementById('startDate').valueAsDate = lastYear;
+
+    // Toggle Strategy Params
+    document.getElementById('strategy').addEventListener('change', function () {
+        const strat = this.value;
+        document.getElementById('smaParams').style.display = strat === 'sma_crossover' ? 'block' : 'none';
+        document.getElementById('rsiParams').style.display = strat === 'rsi' ? 'block' : 'none';
+    });
+
+    let chartInstance = null;
+
+    document.getElementById('backtestForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        // UI States
+        document.getElementById('initialState').style.display = 'none';
+        document.getElementById('resultsContainer').style.display = 'none';
+        document.getElementById('loadingState').style.display = 'block';
+
+        // Collect Params
+        const payload = {
+            symbol: document.getElementById('symbol').value,
+            start_date: document.getElementById('startDate').value,
+            end_date: document.getElementById('endDate').value,
+            initial_capital: parseFloat(document.getElementById('capital').value),
+            strategy: document.getElementById('strategy').value,
+            params: {}
+        };
+
+        if (payload.strategy === 'sma_crossover') {
+            payload.params.short_period = parseInt(document.getElementById('shortPeriod').value);
+            payload.params.long_period = parseInt(document.getElementById('longPeriod').value);
+        } else {
+            payload.params.period = parseInt(document.getElementById('rsiPeriod').value);
+            payload.params.oversold = parseFloat(document.getElementById('rsiOversold').value);
+            payload.params.overbought = parseFloat(document.getElementById('rsiOverbought').value);
+        }
+
+        try {
+            const res = await fetch('/api/backtest', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+
+            if (data.error) throw new Error(data.error);
+
+            // Populate Results
+            document.getElementById('resReturn').innerText = data.total_return_pct + '%';
+            document.getElementById('resReturn').parentElement.parentElement.className =
+                `card ${data.total_return_pct >= 0 ? 'bg-success' : 'bg-danger'} text-white border-0 rounded-3 shadow-sm h-100`;
+
+            document.getElementById('resValue').innerText = '$' + data.final_value.toLocaleString();
+            document.getElementById('resTrades').innerText = data.num_trades;
+            document.getElementById('resWinRate').innerText = data.win_rate + '%';
+
+            // Portfolio Chart
+            const ctx = document.getElementById('backtestChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            const history = data.portfolio_history || [];
+            // If history is empty, fall back to start/end points
+            const labels = history.length ? history.map(h => new Date(h.timestamp).toLocaleDateString()) : ['Start', 'End'];
+            const values = history.length ? history.map(h => h.portfolio_value) : [payload.initial_capital, data.final_value];
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Portfolio Value',
+                        data: values,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.1,
+                        pointRadius: 0,
+                        pointHoverRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                callback: function (value) { return '$' + value.toLocaleString(); }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return '$' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Table
+            const tbody = document.getElementById('tradesTableBody');
+            tbody.innerHTML = data.trades.map(t => `
+                <tr>
+                    <td class="small text-muted">${new Date(t.timestamp).toLocaleDateString()}</td>
+                    <td><span class="badge ${t.action === 'buy' ? 'bg-success' : 'bg-danger'}">${t.action.toUpperCase()}</span></td>
+                    <td>$${t.price.toFixed(2)}</td>
+                    <td>${t.qty}</td>
+                    <td class="${t.profit > 0 ? 'text-success' : (t.profit < 0 ? 'text-danger' : 'text-muted')} fw-bold">
+                        ${t.profit !== undefined ? '$' + t.profit.toFixed(2) : '-'}
+                    </td>
+                </tr>
+            `).join('');
+
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+
+        } catch (err) {
+            console.error(err);
+            alert('Backtest failed: ' + err.message);
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('initialState').style.display = 'block';
+        }
+    });
+
+    // Handle Live Execution
+    document.getElementById('runLiveBtn')?.addEventListener('click', async function () {
+        if (!confirm("⚠️ WARNING: This will check the latest market data and place a REAL (Paper) order if a signal is detected. Proceed?")) return;
+
+        const btn = this;
+        const orgText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Checking...';
+
+        try {
+            // Re-use logic to gather params (duplicated refactoring would be better but keeping it simple)
+            const payload = {
+                symbol: document.getElementById('symbol').value,
+                strategy: document.getElementById('strategy').value,
+                params: {}
+            };
+
+            if (payload.strategy === 'sma_crossover') {
+                payload.params.short_period = parseInt(document.getElementById('shortPeriod').value);
+                payload.params.long_period = parseInt(document.getElementById('longPeriod').value);
+            } else {
+                payload.params.period = parseInt(document.getElementById('rsiPeriod').value);
+                payload.params.oversold = parseFloat(document.getElementById('rsiOversold').value);
+                payload.params.overbought = parseFloat(document.getElementById('rsiOverbought').value);
+            }
+
+            const res = await fetch('/api/execute_strategy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+
+            if (data.error) throw new Error(data.error);
+
+            let msg = data.message;
+            if (data.signal !== 'none') {
+                msg += `\nPrice: $${data.price.toFixed(2)}`;
+            }
+            alert(msg);
+
+        } catch (err) {
+            console.error(err);
+            alert('Live Execution Failed: ' + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = orgText;
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-4" style="max-width:1000px; margin:auto;">
+  <h3 class="fw-bold mb-4 text-center">ETF Analysis (AI-Powered)</h3>
+
+  <div class="card shadow-sm p-4 border-0">
+    <form id="etfForm" onsubmit="event.preventDefault(); fetchETF();">
+      <div class="input-group mb-3">
+        <input type="text" id="etf-symbol" class="form-control" placeholder="Enter ETF symbol (e.g., SPY, QQQ, VOO)" required>
+        <button class="btn btn-dark" type="submit">Analyze</button>
+      </div>
+    </form>
+
+    <div id="etf-result" style="display:none;">
+      <div id="ai-card" class="card mt-4 p-3 border-0 shadow-sm" style="background:#fafafa; display:none;">
+        <h5 class="fw-semibold mb-2">🤖 AI ETF Insight</h5>
+        <div id="ai-analysis" class="text-secondary" style="white-space:pre-line;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function fetchETF() {
+  const symbol = document.getElementById("etf-symbol").value.trim();
+  if (!symbol) return;
+
+  const res = await fetch(`/api/etf?symbol=${symbol}`);
+  const data = await res.json();
+  const aiCard = document.getElementById("ai-card");
+  const aiText = document.getElementById("ai-analysis");
+  const resultBox = document.getElementById("etf-result");
+
+  if (data.error) {
+    aiText.textContent = data.error;
+    aiCard.style.display = "block";
+  } else {
+    aiText.textContent = data.ai_analysis;
+    aiCard.style.display = "block";
+  }
+
+  resultBox.style.display = "block";
+}
+</script>
+
+{% endblock %}
